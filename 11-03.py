@@ -1,1 +1,0 @@
-print(*(i**2 for i in range(int(input("Введите натуральное число: ")))), sep='\n')
