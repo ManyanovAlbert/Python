@@ -30,13 +30,31 @@ obstacle_y = 500
 obstacle_width = 50
 obstacle_height = 50
 
+# Определение начальных координат и скорости падающего объекта
+falling_object_x = 400
+falling_object_y = 0
+falling_object_vel_x = 0.5
+falling_object_vel_y = 0.5
+
 # Основной игровой цикл
 running = True
 game_over = False
+is_paused = False
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_p:
+                is_paused = not is_paused
+            elif event.key == pygame.K_SPACE and not is_jumping:
+                player_vel_y = -1.5
+                is_jumping = True
+                jump_count += 1
+
+    # Если игра приостановлена, пропускаем обновление игровых объектов
+    if is_paused:
+        continue
 
     # Обработка нажатий клавиш
     keys = pygame.key.get_pressed()
@@ -44,10 +62,6 @@ while running:
         player_x -= player_vel_x
     if keys[pygame.K_RIGHT]:
         player_x += player_vel_x
-    if keys[pygame.K_SPACE] and not is_jumping:
-        player_vel_y = -1.5
-        is_jumping = True
-        jump_count += 1
 
     # Применение гравитации
     player_vel_y += 0.005
@@ -62,6 +76,20 @@ while running:
     # Проверка столкновения с препятствием
     if player_x < obstacle_x + obstacle_width and player_x + 50 > obstacle_x and player_y < obstacle_y + obstacle_height and player_y + 50 > obstacle_y:
         game_over = True
+    if player_x < falling_object_x + 50 and player_x + 50 > falling_object_x and player_y < falling_object_y + 50 and player_y + 50 > falling_object_y:
+        game_over = True
+
+    # Обновление позиции падающего объекта
+    falling_object_x += falling_object_vel_x
+    falling_object_y += falling_object_vel_y
+
+
+
+    # Проверка столкновения падающего объекта с границами окна
+    if falling_object_x <= 0 or falling_object_x >= SCREEN_WIDTH - 50:
+        falling_object_vel_x *= -1
+    if falling_object_y <= 0 or falling_object_y >= SCREEN_HEIGHT - 50:
+        falling_object_vel_y *= -1
 
     # Очистка экрана
     screen.fill(BLACK)
@@ -71,6 +99,9 @@ while running:
 
     # Отрисовка препятствия
     pygame.draw.rect(screen, (255, 0, 0), (obstacle_x, obstacle_y, obstacle_width, obstacle_height))
+
+    # Отрисовка падающего объекта
+    pygame.draw.rect(screen, (0, 255, 0), (falling_object_x, falling_object_y, 50, 50))
 
     # Отрисовка счетчика прыжков
     font = pygame.font.SysFont("Arial", 24)
@@ -98,10 +129,14 @@ while running:
             jump_count = 0
             obstacle_x = 500
             obstacle_y = 500
+            falling_object_x = 400
+            falling_object_y = 500
             game_over = False
+            is_paused = False
 
     # Обновление экрана
     pygame.display.flip()
 
 # Завершение работы Pygame
 pygame.quit()
+
