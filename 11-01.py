@@ -1,0 +1,1 @@
+text = [print(i, end=' ') for i in input().split()[2::3]]
