@@ -1,4 +1,4 @@
-M = int(input())
+wM = int(input())
 available_dishes = set(input().split())
 N = int(input())
 never_cooked_dishes = []
